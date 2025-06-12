@@ -178,3 +178,38 @@ export const searchRepos = async (req, res, next) => {
     }
 };
 
+export const getGlobalRepoIssues = async (req, res, next) => {
+  try {
+    const { owner, repo } = req.params;
+
+    const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues`, {
+      headers: {
+        Authorization: `token ${req.user.accessToken}`, // Using authenticated token to avoid rate limit
+      },
+    });
+
+    // Filter out pull requests from issues (GitHub returns both in /issues)
+    const issues = response.data.filter(item => !item.pull_request);
+
+    res.status(200).json(issues);
+  } catch (err) {
+    next(errorHandler(404, "Unable to fetch issues"));
+  }
+};
+
+// Get pull requests from any public repo
+export const getGlobalRepoPulls = async (req, res, next) => {
+  try {
+    const { owner, repo } = req.params;
+
+    const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/pulls`, {
+      headers: {
+        Authorization: `token ${req.user.accessToken}`,
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (err) {
+    next(errorHandler(404, "Unable to fetch pull requests"));
+  }
+};
