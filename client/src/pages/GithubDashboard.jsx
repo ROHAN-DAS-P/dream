@@ -124,13 +124,29 @@ const GitHubDashboard = () => {
           onClick={() => fetchDetails(repo)}
           className="cursor-pointer p-3 rounded-md hover:bg-gray-50 border"
         >
-          <p className="font-medium text-sm text-gray-800">{repo.full_name}</p>
+          <a
+            href={`https://github.com/${repo.full_name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-sm text-blue-600 hover:underline"
+          >
+            {repo.full_name}
+          </a>
         </div>
       ))}
 
       {selectedRepo && (
         <div className="mt-4">
-          <p className="text-sm font-semibold text-gray-700 mb-2">{selectedRepo.full_name}</p>
+          <p className="text-sm font-semibold text-gray-700 mb-2">
+            <a
+              href={`https://github.com/${selectedRepo.full_name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              {selectedRepo.full_name}
+            </a>
+          </p>
 
           <div className="flex space-x-2 mb-3">
             <button
@@ -150,13 +166,27 @@ const GitHubDashboard = () => {
           <div className="mb-2">
             {activeTab === "issues" && filterData(issues).map((issue) => (
               <div key={issue.id} className="mb-2">
-                <p className="text-sm font-medium text-gray-800">{issue.title}</p>
+                <a
+                  href={issue.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:underline"
+                >
+                  {issue.title}
+                </a>
                 <p className="text-xs text-gray-500">{issue.body?.slice(0, 80) || "No description"}</p>
               </div>
             ))}
             {activeTab === "pulls" && filterData(pulls).map((pr) => (
               <div key={pr.id} className="mb-2">
-                <p className="text-sm font-medium text-gray-800">{pr.title}</p>
+                <a
+                  href={pr.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:underline"
+                >
+                  {pr.title}
+                </a>
                 <p className="text-xs text-gray-500">{pr.body?.slice(0, 80) || "No description"}</p>
               </div>
             ))}
