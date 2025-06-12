@@ -4,7 +4,6 @@ import axios from "axios";
 const GitHubDashboard = () => {
   const [user, setUser] = useState(null);
   const [search, setSearch] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
   const [scope, setScope] = useState("user");
   const [repos, setRepos] = useState([]);
   const [selectedRepo, setSelectedRepo] = useState(null);
@@ -25,24 +24,21 @@ const GitHubDashboard = () => {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (search.trim() === "") return setSuggestions([]);
-      try {
-        const res = await axios.get(`/api/repo/search?q=${search}&type=${scope}`);
-        setSuggestions(res.data);
-      } catch (err) {
-        console.error("Error fetching suggestions", err);
-      }
-    };
-    const delayDebounceFn = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(delayDebounceFn);
-  }, [search, scope]);
+  const handleSearch = async () => {
+    try {
+      const res = await axios.get(`/api/repo/search?q=${search}&type=${scope}`);
+      setRepos(res.data);
+      setSelectedRepo(null);
+      setIssues([]);
+      setPulls([]);
+    } catch (err) {
+      console.error("Error during repo search", err);
+    }
+  };
 
   const handleClearSearch = () => {
     setSearch("");
     setRepos([]);
-    setSuggestions([]);
     setSelectedRepo(null);
     setIssues([]);
     setPulls([]);
@@ -51,7 +47,6 @@ const GitHubDashboard = () => {
   const fetchDetails = async (repo) => {
     try {
       setSelectedRepo(repo);
-      setSuggestions([]);
       setRepos([]);
       const issuesEndpoint = scope === "user"
         ? `/api/repo/${repo.id}/issues`
@@ -78,123 +73,94 @@ const GitHubDashboard = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="bg-white rounded-xl shadow-md max-w-2xl mx-auto mt-10 p-6 font-sans">
       {user && (
-        <div className="mb-6 flex items-center space-x-4">
-          <img src={user.avatar_url} alt="User Avatar" className="w-12 h-12 rounded-full" />
+        <div className="flex items-center space-x-4 mb-4">
+          <img
+            src={user.avatar_url}
+            alt="User Avatar"
+            className="w-14 h-14 rounded-full"
+          />
           <div>
-            <h1 className="text-xl font-bold">{user.name || user.login}</h1>
-            <p className="text-gray-600">{user.email || "No email provided"}</p>
+            <h1 className="text-lg font-semibold text-gray-800">{user.name || user.login}</h1>
+            <p className="text-sm text-gray-500">{user.email || "No email provided"}</p>
           </div>
         </div>
       )}
 
-      <div className="mb-4 relative">
-        <div className="flex space-x-2">
+      <div className="flex items-center space-x-2 mb-4">
+        <div className="relative w-full">
           <input
             type="text"
-            placeholder="Search repositories..."
+            placeholder="Search"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border px-3 py-2 rounded w-full"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              handleSearch();
+            }}
+            className="w-full border border-gray-300 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          <button
-            onClick={handleClearSearch}
-            className="px-3 py-2 border rounded text-sm text-gray-700 hover:bg-gray-100"
-          >
-            Clear
-          </button>
-          <select
-            value={scope}
-            onChange={(e) => setScope(e.target.value)}
-            className="border px-3 py-2 rounded"
-          >
-            <option value="user">My Repos</option>
-            <option value="global">Global</option>
-          </select>
+          <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
         </div>
-        {suggestions.length > 0 && (
-          <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow max-h-64 overflow-y-auto">
-            {suggestions.map((repo) => (
-              <li
-                key={repo.id}
-                onClick={() => fetchDetails(repo)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-              >
-                {repo.full_name}
-              </li>
-            ))}
-          </ul>
-        )}
+        <button
+          onClick={handleClearSearch}
+          className="text-sm text-gray-600 px-2 py-1 border border-gray-300 rounded hover:bg-gray-100"
+        >
+          Clear
+        </button>
+        <select
+          value={scope}
+          onChange={(e) => setScope(e.target.value)}
+          className="text-sm border border-gray-300 rounded px-3 py-2"
+        >
+          <option value="user">User</option>
+          <option value="global">Global</option>
+        </select>
       </div>
 
-      {selectedRepo && (
-        <div className="mt-6">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold">{selectedRepo.full_name}</h2>
-            <p className="text-sm text-blue-600">
-              <a href={selectedRepo.html_url} target="_blank" rel="noopener noreferrer">
-                {selectedRepo.html_url}
-              </a>
-            </p>
-          </div>
+      {repos.map((repo) => (
+        <div
+          key={repo.id}
+          onClick={() => fetchDetails(repo)}
+          className="cursor-pointer p-3 rounded-md hover:bg-gray-50 border"
+        >
+          <p className="font-medium text-sm text-gray-800">{repo.full_name}</p>
+        </div>
+      ))}
 
-          <div className="flex space-x-4 mb-2">
+      {selectedRepo && (
+        <div className="mt-4">
+          <p className="text-sm font-semibold text-gray-700 mb-2">{selectedRepo.full_name}</p>
+
+          <div className="flex space-x-2 mb-3">
             <button
               onClick={() => setActiveTab("issues")}
-              className={`px-4 py-2 rounded ${activeTab === "issues" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              className={`text-sm px-3 py-1 rounded-full ${activeTab === "issues" ? "bg-gray-900 text-white" : "bg-gray-200 text-gray-800"}`}
             >
               Issues
             </button>
             <button
               onClick={() => setActiveTab("pulls")}
-              className={`px-4 py-2 rounded ${activeTab === "pulls" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              className={`text-sm px-3 py-1 rounded-full ${activeTab === "pulls" ? "bg-gray-900 text-white" : "bg-gray-200 text-gray-800"}`}
             >
               Pull Requests
             </button>
           </div>
 
-          <input
-            type="text"
-            placeholder="Filter by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border px-3 py-2 rounded mb-4 w-full"
-          />
-
-          {activeTab === "issues" && (
-            <div>
-              {filterData(issues).map((issue) => (
-                <div key={issue.id} className="border-b py-2">
-                  <a
-                    href={issue.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-700 font-semibold"
-                  >
-                    #{issue.number} - {issue.title}
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === "pulls" && (
-            <div>
-              {filterData(pulls).map((pr) => (
-                <div key={pr.id} className="border-b py-2">
-                  <a
-                    href={pr.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-700 font-semibold"
-                  >
-                    #{pr.number} - {pr.title}
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="mb-2">
+            {activeTab === "issues" && filterData(issues).map((issue) => (
+              <div key={issue.id} className="mb-2">
+                <p className="text-sm font-medium text-gray-800">{issue.title}</p>
+                <p className="text-xs text-gray-500">{issue.body?.slice(0, 80) || "No description"}</p>
+              </div>
+            ))}
+            {activeTab === "pulls" && filterData(pulls).map((pr) => (
+              <div key={pr.id} className="mb-2">
+                <p className="text-sm font-medium text-gray-800">{pr.title}</p>
+                <p className="text-xs text-gray-500">{pr.body?.slice(0, 80) || "No description"}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
