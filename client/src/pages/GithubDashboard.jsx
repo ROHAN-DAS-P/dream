@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../components/Header";
+import { FaSearch } from 'react-icons/fa'
 
 const GitHubDashboard = () => {
   const [user, setUser] = useState(null);
@@ -123,7 +124,7 @@ const GitHubDashboard = () => {
             }}
             className="w-full border border-[#CCD6DD] rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B82F6] bg-white text-[#334E68]"
           />
-          <span className="absolute left-3 top-2.5 text-[#3B82F6]"></span>
+          <span className="absolute left-3 top-2.5 text-[#3B82F6]"><FaSearch className='text-slate-600'/></span>
         </div>
         <button
           onClick={handleClearSearch}
