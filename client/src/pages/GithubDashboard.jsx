@@ -29,7 +29,6 @@ const GitHubDashboard = () => {
   const fetchUser = async () => {
     try {
       const res = await axios.get("/api/auth/me");
-      console.log("User Data:", res.data);
       setUser(res.data);
     } catch (err) {
       console.error("Failed to fetch user info", err);
