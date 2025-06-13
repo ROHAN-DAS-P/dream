@@ -80,7 +80,7 @@ const GitHubDashboard = () => {
   return (
     <div className="min-h-screen bg-[#F5F7FA] p-6">
       <Header />
-    <div className="bg-gradient-to-br from-[#ECE9E6] to-[#FFFFFF] rounded-xl shadow-lg max-w-5xl mx-auto mt-10 p-8 font-sans border border-[#CCD6DD]">
+    <div className="bg-slate-200 shadow-md rounded-xl max-w-5xl mx-auto mt-10 p-8 font-sans border border-[#CCD6DD]">
       {user && (
         <div className="flex items-center space-x-4 mb-6">
           <img

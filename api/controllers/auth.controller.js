@@ -12,7 +12,7 @@ export const git = (req,res) => {
 
 export const github_callback = async (req, res, next) => {
     try {
-        const token = jwt.sign({ id: req.user.id, username: req.user.username,avatar_url: req.user.avatar_url,
+        const token = jwt.sign({ id: req.user.id,login: req.user.login, username: req.user.username,avatar_url: req.user.avatar_url,
       email: req.user.email,name: req.user.name,accessToken: req.user.accessToken, }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('access_token',token, {
             httpOnly: true,
@@ -43,12 +43,29 @@ export const signOut = async (req, res, next) => {
     
 }
 
+// export const getUserProfile = async (req, res, next) => {
+//   try {
+//     const { username, avatar_url, email, name } = req.user;
+
+//     res.status(200).json({
+//       login: username,
+//       avatar_url,
+//       email,
+//       name,
+//     });
+//   } catch (error) {
+//     next({
+//       statusCode: 500,
+//       message: 'Error retrieving user profile',
+//     });
+//   }
+// };
 export const getUserProfile = async (req, res, next) => {
   try {
-    const { username, avatar_url, email, name } = req.user;
+    const { login, avatar_url, email, name } = req.user;
 
     res.status(200).json({
-      login: username,
+      login,
       avatar_url,
       email,
       name,
