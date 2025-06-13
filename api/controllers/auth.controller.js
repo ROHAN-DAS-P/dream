@@ -13,12 +13,12 @@ export const git = (req,res) => {
 export const github_callback = async (req, res, next) => {
     try {
         const token = jwt.sign({ id: req.user.id,login: req.user.login, username: req.user.username,avatar_url: req.user.avatar_url,
-      email: req.user.email,name: req.user.name,accessToken: req.user.accessToken, }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      email: req.user.email,name: req.user.name,accessToken: req.user.accessToken, }, process.env.JWT_SECRET, { expiresIn: '1m' });
         res.cookie('access_token',token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'Lax',
-            maxAge: 60 * 60 * 1000,
+            maxAge: 1 * 60 * 1000,
         });
         res.redirect(`http://localhost:5173/home`);
     } catch (error) {

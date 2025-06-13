@@ -13,18 +13,35 @@ const GitHubDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("issues");
 
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const res = await axios.get("/api/auth/me");
+  //       console.log("User Data:", res.data);
+  //       setUser(res.data);
+  //     } catch (err) {
+  //       console.error("Failed to fetch user info", err);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, []);
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("/api/auth/me");
-        console.log("User Data:", res.data);
-        setUser(res.data);
-      } catch (err) {
-        console.error("Failed to fetch user info", err);
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get("/api/auth/me");
+      console.log("User Data:", res.data);
+      setUser(res.data);
+    } catch (err) {
+      console.error("Failed to fetch user info", err);
+      if (err.response && err.response.status === 401) {
+        alert("Session expired. Please log in again.");
+        window.location.href = "/"; // 👈 Replace with your login route
       }
-    };
-    fetchUser();
-  }, []);
+    }
+  };
+  fetchUser();
+}, []);
+
 
   const handleSearch = async () => {
     if (!search.trim()) return;
@@ -107,7 +124,7 @@ const GitHubDashboard = () => {
             }}
             className="w-full border border-[#CCD6DD] rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B82F6] bg-white text-[#334E68]"
           />
-          <span className="absolute left-3 top-2.5 text-[#3B82F6]">🔍</span>
+          <span className="absolute left-3 top-2.5 text-[#3B82F6]"></span>
         </div>
         <button
           onClick={handleClearSearch}
