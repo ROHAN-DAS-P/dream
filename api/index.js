@@ -30,10 +30,11 @@ import './config/passport.js';
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
+/*app.use(cors({
   origin: 'http://localhost:5173', // ✅ Change this to match your Vite frontend
   credentials: true,
-}));
+}));*/
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
