@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Header from "../components/Header";
 
 const GitHubDashboard = () => {
   const [user, setUser] = useState(null);
@@ -24,17 +25,20 @@ const GitHubDashboard = () => {
     fetchUser();
   }, []);
 
-  const handleSearch = async () => {
-    try {
-      const res = await axios.get(`/api/repo/search?q=${search}&type=${scope}`);
-      setRepos(res.data);
-      setSelectedRepo(null);
-      setIssues([]);
-      setPulls([]);
-    } catch (err) {
-      console.error("Error during repo search", err);
-    }
-  };
+const handleSearch = async () => {
+  if (!search.trim()) return; // Skip if search is empty
+
+  try {
+    const res = await axios.get(`/api/repo/search?q=${search}&type=${scope}`);
+    setRepos(res.data);
+    setSelectedRepo(null);
+    setIssues([]);
+    setPulls([]);
+  } catch (err) {
+    console.error("Error during repo search", err);
+  }
+};
+
 
   const handleClearSearch = () => {
     setSearch("");
@@ -73,6 +77,8 @@ const GitHubDashboard = () => {
   };
 
   return (
+    <div>
+      <Header />
     <div className="bg-white rounded-xl shadow-md max-w-2xl mx-auto mt-10 p-6 font-sans">
       {user && (
         <div className="flex items-center space-x-4 mb-4">
@@ -193,6 +199,7 @@ const GitHubDashboard = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
