@@ -23,9 +23,10 @@ import userRouter from "./routes/auth.route.js"
 import repoRouter from "./routes/repo.route.js"
 
 import './config/passport.js';
+import path from 'path';
 
 
-
+const __dirname = path.resolve();
 
 const app = express();
 app.use(cookieParser());
@@ -43,6 +44,11 @@ app.use(passport.initialize());
 
 app.use("/api/auth", userRouter);
 app.use('/api/repo', repoRouter);
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 
 
