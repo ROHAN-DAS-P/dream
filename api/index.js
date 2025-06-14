@@ -46,11 +46,10 @@ app.use("/api/auth", userRouter);
 app.use('/api/repo', repoRouter);
 
 app.use(express.static(path.join(__dirname, '/client/dist')));
-app.get('*', (req, res) => {
+
+app.get(/^\/(?!api\/).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 });
-
-
 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
