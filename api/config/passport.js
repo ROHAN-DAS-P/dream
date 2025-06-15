@@ -35,7 +35,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: `${process.env.FRONTEND_URL}/api/auth/github/callback`,
+      callbackURL: `https://repo-details.onrender.com/api/auth/github/callback`, // ✅ Use your production URL
       scope: ['user:email'], // ✅ Request email scope
     },
     async (accessToken, refreshToken, profile, done) => {
