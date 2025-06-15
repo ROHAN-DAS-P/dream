@@ -4,70 +4,61 @@ dotenv.config();
 
 // Core dependencies
 import express from 'express';
-
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-
-
-// Authentication dependencies
-import passport from 'passport';
-import { Strategy as GitHubStrategy } from 'passport-github2';
-import jwt from 'jsonwebtoken';
-
-// For making HTTP requests
-import axios from 'axios';
-
-import userRouter from "./routes/auth.route.js"
-import repoRouter from "./routes/repo.route.js"
-
-import './config/passport.js';
 import path from 'path';
 
+// Auth & Routes
+import passport from 'passport';
+import './config/passport.js'; // GitHub Strategy config
+import userRouter from "./routes/auth.route.js";
+import repoRouter from "./routes/repo.route.js";
 
 const __dirname = path.resolve();
-
 const app = express();
+
+// Middleware
 app.use(cookieParser());
 app.use(express.json());
-/*app.use(cors({
-  origin: 'http://localhost:5173', // ✅ Change this to match your Vite frontend
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // e.g. https://repo-details.onrender.com
   credentials: true,
-}));*/
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+}));
+
 app.use(helmet());
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+}));
 
 app.use(passport.initialize());
 
-
+// API Routes
 app.use("/api/auth", userRouter);
-app.use('/api/repo', repoRouter);
+app.use("/api/repo", repoRouter);
 
-app.use(express.static(path.join(__dirname, '/client/dist')));
+// Serve frontend static files (built with Vite)
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
+// Fallback route to serve index.html for React Router
 app.get(/^\/(?!api\/).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 });
 
+// Error handler
 app.use((err, req, res, next) => {
-  if (res.headersSent) {
-    // If headers already sent, let Express handle the error
-    return next(err);
-  }
-
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  return res.status(statusCode).json({
+  if (res.headersSent) return next(err);
+  res.status(err.statusCode || 500).json({
     success: false,
-    statusCode,
-    message,
+    message: err.message || 'Internal Server Error',
   });
 });
 
-
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-    }
-)
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});

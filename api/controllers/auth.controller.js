@@ -20,7 +20,7 @@ export const github_callback = async (req, res, next) => {
             sameSite: 'Lax',
             maxAge: 60 * 60 * 1000,
         });
-        res.redirect(`http://localhost:5173/home`);
+        res.redirect(`${process.env.FRONTEND_URL}/home`);
     } catch (error) {
         if (!res.headersSent) next(error);
     }
