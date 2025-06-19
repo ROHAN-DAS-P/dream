@@ -18,7 +18,7 @@ import repoRouter from "./routes/repo.route.js";
 
 const __dirname = path.resolve();
 const app = express();
-app.set('trust proxy', 1);
+
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
