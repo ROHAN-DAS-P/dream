@@ -24,11 +24,22 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // e.g. https://repo-details.onrender.com
+  origin: process.env.FRONTEND_URL, 
   credentials: true,
 }));
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://avatars.githubusercontent.com"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
+
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
